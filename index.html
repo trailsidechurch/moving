@@ -1,1 +1,743 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giving Wish List</title>
+<script src="https://js.churchcenter.com/modal/v1"></script>
+<style>
+  :root {
+    --brand: #2e6f5e;
+    --brand-dark: #1f4d40;
+    --bg: #f7f5f0;
+    --card-bg: #ffffff;
+    --text: #22282a;
+    --muted: #6b7480;
+    --border: #e4e1d8;
+    --accent: #d98b3f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding-bottom: 90px;
+  }
+  header.page-header {
+    background: var(--brand);
+    color: #fff;
+    padding: 36px 20px 28px;
+    text-align: center;
+  }
+  header.page-header h1 {
+    margin: 0 0 8px;
+    font-size: 1.8rem;
+  }
+  header.page-header p {
+    margin: 0;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0.92;
+    line-height: 1.5;
+  }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 20px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+  .category-heading {
+    font-size: 1.25rem;
+    color: var(--brand-dark);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 8px;
+    margin: 0 0 16px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background: #eee;
+  }
+  .card-body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .card h3 {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+  }
+  .card .price {
+    font-weight: 600;
+    color: var(--brand-dark);
+    margin-bottom: 8px;
+  }
+  .card .desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .progress-wrap {
+    margin-bottom: 10px;
+  }
+  .progress-track {
+    background: #eceae2;
+    border-radius: 6px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    background: var(--accent);
+    height: 100%;
+  }
+  .progress-label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .fully-funded {
+    color: var(--brand-dark);
+    font-weight: 600;
+  }
+  .qty-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+  .stepper {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .stepper button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #f0efe9;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .stepper input {
+    width: 40px;
+    text-align: center;
+    border: none;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    height: 32px;
+    font-size: 0.95rem;
+  }
+  .add-btn {
+    flex: 1;
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .add-btn:hover { background: var(--brand-dark); }
+
+  /* Cart button */
+  #cart-toggle {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: var(--brand-dark);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 14px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    z-index: 50;
+  }
+  #cart-toggle .count {
+    background: var(--accent);
+    border-radius: 999px;
+    padding: 2px 8px;
+    margin-left: 6px;
+    font-size: 0.8rem;
+  }
+
+  /* Cart panel */
+  #cart-panel {
+    position: fixed;
+    top: 0;
+    right: -380px;
+    width: 340px;
+    max-width: 90vw;
+    height: 100%;
+    background: #fff;
+    box-shadow: -8px 0 24px rgba(0,0,0,0.15);
+    transition: right 0.25s ease;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+  #cart-panel.open { right: 0; }
+  .cart-header {
+    padding: 18px 18px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cart-header h2 { margin: 0; font-size: 1.15rem; }
+  .cart-header button {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: var(--muted);
+  }
+  .cart-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 18px;
+  }
+  .cart-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0efe9;
+    font-size: 0.9rem;
+  }
+  .cart-line .line-name { font-weight: 600; }
+  .cart-line .line-sub { color: var(--muted); font-size: 0.8rem; }
+  .cart-line button.remove {
+    background: none;
+    border: none;
+    color: #b04a4a;
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-decoration: underline;
+  }
+  .cart-empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 30px 10px;
+    font-size: 0.9rem;
+  }
+  .cart-footer {
+    border-top: 1px solid var(--border);
+    padding: 14px 18px 18px;
+  }
+  .cart-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .checkout-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .checkout-btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .copy-row {
+    margin-top: 10px;
+    text-align: center;
+  }
+  .copy-row button {
+    background: none;
+    border: none;
+    color: var(--brand-dark);
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+  }
+  .copy-msg {
+    font-size: 0.78rem;
+    color: var(--brand-dark);
+    margin-top: 4px;
+    min-height: 14px;
+  }
+  #overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 90;
+    display: none;
+  }
+  #overlay.open { display: block; }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>Help Us Furnish Our New Home</h1>
+  <p>Choose items below to add to your cart. When you're ready, your total will carry over to our secure Planning Center giving page to complete your donation. Photos and prices are representative of the types of items being purchased, not necessarily the exact final items.</p>
+</header>
+
+<main>
+  <div id="item-grid"></div>
+</main>
+
+<button id="cart-toggle" onclick="toggleCart(true)">
+  🛒 Cart <span class="count" id="cart-count">0</span>
+</button>
+
+<div id="overlay" onclick="toggleCart(false)"></div>
+
+<div id="cart-panel">
+  <div class="cart-header">
+    <h2>Your Cart</h2>
+    <button onclick="toggleCart(false)" aria-label="Close cart">&times;</button>
+  </div>
+  <div class="cart-items" id="cart-items"></div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total</span>
+      <span id="cart-total-amount">$0.00</span>
+    </div>
+    <a href="#" target="_blank" id="checkout-link" class="checkout-btn" data-open-in-church-center-modal="true">Give This Amount Now</a>
+    <div class="copy-row">
+      <button onclick="copySummary()">Copy my selections (for the memo field)</button>
+      <div class="copy-msg" id="copy-msg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — edit these two values for your Planning Center site
+   ============================================================ */
+const CONFIG = {
+  // Your Church Center subdomain. If your giving page is
+  // https://gracechurch.churchcenter.com/giving then this is "gracechurch"
+  // NOTE: left as a placeholder — trl.fyi/move belongs to a different
+  // church (Trailside, subdomain "trailsidenc"), so their subdomain/fund
+  // isn't reused here. Replace with YOUR subdomain and fund slug below.
+  subdomain: "YOUR_SUBDOMAIN",
+
+  // The URL slug of the single shared fund donations should go to.
+  // Find/set this under Giving > Funds in Planning Center.
+  // e.g. if your fund link is .../giving/to/wish-list, use "wish-list"
+  fundSlug: "wish-list"
+};
+
+/* ============================================================
+   ITEMS — add, remove, or edit wish list items here.
+   - id: unique short string, no spaces
+   - category: section heading the item is grouped under
+   - name: item name
+   - price: cost per unit (number)
+   - photo: image URL (or a relative path if hosting the image yourself)
+   - desc: short optional description
+   - goal: (optional) total units you're hoping to fund. Leave it out
+     (or set to null) for open-ended items with no fixed target.
+   - funded: how many units you consider already funded so far.
+     NOTE: because this uses one shared fund, Planning Center can't tell
+     you which item a gift was "for" — update "funded" manually based on
+     your own judgment/records of what's come in. All items below start
+     at 0 since there's no real giving data yet.
+
+   The list below was pulled from trl.fyi/move (a different church's
+   move-in wish list, used here as a starting template) — names, prices,
+   photos, and the two stated quantities (chairs, door card readers) are
+   copied from that page. Everything else has no stated goal quantity,
+   so "goal" is left out for those items. Swap in your own items, prices,
+   and photos as needed.
+   ============================================================ */
+const ITEMS = [
+  // --- Furnishings ---
+  {
+    id: "ark-playground",
+    category: "Furnishings",
+    name: "Ark Playground",
+    price: 30000,
+    photo: "https://trl.fyi/move/_assets/media/909e86d28e35218ab484fd636985cb3c.jpg",
+    funded: 0
+  },
+  {
+    id: "fridge-freezer",
+    category: "Furnishings",
+    name: "Fridge & Freezer",
+    price: 2000,
+    photo: "https://trl.fyi/move/_assets/media/d0c50d7546b46013bbb3a1fecf42181d.png",
+    funded: 0
+  },
+  {
+    id: "coffee-brewer",
+    category: "Furnishings",
+    name: "Coffee Brewer",
+    price: 2000,
+    photo: "https://trl.fyi/move/_assets/media/09d6e3b8ffe236150773a3efdfe0a443.png",
+    funded: 0
+  },
+  {
+    id: "dishwasher",
+    category: "Furnishings",
+    name: "Dishwasher",
+    price: 1500,
+    photo: "https://trl.fyi/move/_assets/media/f2e8eb06b58996d6b8583bba03ebd718.png",
+    funded: 0
+  },
+  {
+    id: "chair",
+    category: "Furnishings",
+    name: "Chair",
+    price: 70,
+    photo: "https://trl.fyi/move/_assets/media/b4e6beaa9cc9db9655ff5f300e51e271.png",
+    goal: 300,
+    funded: 0
+  },
+
+  // --- Trailside Kids ---
+  {
+    id: "soft-seating",
+    category: "Trailside Kids",
+    name: "Soft Seating",
+    price: 350,
+    photo: "https://trl.fyi/move/_assets/media/dd53a952c1a88e163bb8cc16d4663e90.png",
+    funded: 0
+  },
+  {
+    id: "play-kitchens",
+    category: "Trailside Kids",
+    name: "Play Kitchens",
+    price: 120,
+    photo: "https://trl.fyi/move/_assets/media/89b0fed5cded9ad81a9a31486cc66f67.png",
+    funded: 0
+  },
+  {
+    id: "decorations",
+    category: "Trailside Kids",
+    name: "Decorations",
+    price: 500,
+    photo: "https://trl.fyi/move/_assets/media/6a198a7a2c4a6a14fe82d6ba1e7a56f6.png",
+    funded: 0
+  },
+
+  // --- Lobby ---
+  {
+    id: "couches",
+    category: "Lobby",
+    name: "Couches",
+    price: 1000,
+    photo: "https://trl.fyi/move/_assets/media/7bddf9e27cba7a80282cb7cb6bc2fc2a.png",
+    funded: 0
+  },
+  {
+    id: "cafe-booths",
+    category: "Lobby",
+    name: "Cafe Booths",
+    price: 750,
+    photo: "https://trl.fyi/move/_assets/media/956772cc1b52b7538e80208f1839dc4b.png",
+    funded: 0
+  },
+  {
+    id: "cafe-tables",
+    category: "Lobby",
+    name: "Cafe Tables",
+    price: 250,
+    photo: "https://trl.fyi/move/_assets/media/a493749097968ec78d2be2a6462350b1.png",
+    funded: 0
+  },
+
+  // --- Courtyard ---
+  {
+    id: "courtyard-tables-chairs",
+    category: "Courtyard",
+    name: "Tables & Chairs",
+    price: 1000,
+    photo: "https://trl.fyi/move/_assets/media/d155491e0a182480c0918da50017520b.png",
+    funded: 0
+  },
+  {
+    id: "seat-walls",
+    category: "Courtyard",
+    name: "Seat Walls",
+    price: 5000,
+    photo: "https://trl.fyi/move/_assets/media/62c2ebc072fecd2a8915bac0a53489c0.png",
+    desc: "$5,000 per section",
+    funded: 0
+  },
+  {
+    id: "courtyard-chairs",
+    category: "Courtyard",
+    name: "Chairs",
+    price: 250,
+    photo: "https://trl.fyi/move/_assets/media/cf3f9481d2ece1505e262ce8bdb3cd67.png",
+    funded: 0
+  },
+  {
+    id: "bike-racks",
+    category: "Courtyard",
+    name: "Bike Racks",
+    price: 250,
+    photo: "https://trl.fyi/move/_assets/media/8e8d9c9f20e6b01cdfbf18e5ffaee826.png",
+    funded: 0
+  },
+
+  // --- Technology ---
+  {
+    id: "speaker-arrays",
+    category: "Technology",
+    name: "Speaker Arrays",
+    price: 7000,
+    photo: "https://trl.fyi/move/_assets/media/cb3453858e6ef7613d58c2822d244577.png",
+    funded: 0
+  },
+  {
+    id: "soundboard",
+    category: "Technology",
+    name: "Soundboard",
+    price: 3500,
+    photo: "https://trl.fyi/move/_assets/media/efa9e8d24329ad7d1cf46f42ea6cce17.png",
+    funded: 0
+  },
+  {
+    id: "door-card-readers",
+    category: "Technology",
+    name: "Door Card Readers",
+    price: 500,
+    photo: "https://trl.fyi/move/_assets/media/b098de9666e735ab84eb73f93f01d47d.png",
+    goal: 4,
+    funded: 0
+  },
+  {
+    id: "network-wifi",
+    category: "Technology",
+    name: "Network/Wifi",
+    price: 10000,
+    photo: "https://trl.fyi/move/_assets/media/3ec66142fe44063a80d7053ce5e7db6b.png",
+    funded: 0
+  }
+];
+
+/* ============================================================
+   Everything below this line is page logic — no edits needed.
+   ============================================================ */
+const money = n => "$" + n.toFixed(2);
+
+function loadCart() {
+  try {
+    return JSON.parse(localStorage.getItem("wishlistCart") || "{}");
+  } catch (e) {
+    return {};
+  }
+}
+function saveCart(cart) {
+  localStorage.setItem("wishlistCart", JSON.stringify(cart));
+}
+
+let cart = loadCart();
+
+function itemById(id) {
+  return ITEMS.find(i => i.id === id);
+}
+
+function renderCardHTML(item) {
+  let progressHTML = "";
+  if (item.goal) {
+    const pct = Math.min(100, Math.round((item.funded / item.goal) * 100));
+    const remaining = Math.max(0, item.goal - item.funded);
+    progressHTML = `
+        <div class="progress-wrap">
+          <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <div class="progress-label ${remaining === 0 ? "fully-funded" : ""}">
+            ${remaining === 0 ? "Fully funded — thank you! 🎉" : `${item.funded} of ${item.goal} funded (${remaining} still needed)`}
+          </div>
+        </div>`;
+  } else if (item.funded) {
+    progressHTML = `
+        <div class="progress-wrap">
+          <div class="progress-label">${item.funded} given so far</div>
+        </div>`;
+  }
+  return `
+      <img src="${item.photo}" alt="${item.name}">
+      <div class="card-body">
+        <h3>${item.name}</h3>
+        <div class="price">${money(item.price)} each</div>
+        ${item.desc ? `<div class="desc">${item.desc}</div>` : ""}
+        ${progressHTML}
+        <div class="qty-row">
+          <div class="stepper">
+            <button type="button" onclick="stepQty('${item.id}', -1)">−</button>
+            <input type="number" min="0" id="qty-${item.id}" value="${cart[item.id] || 0}" onchange="setQty('${item.id}', this.value)">
+            <button type="button" onclick="stepQty('${item.id}', 1)">+</button>
+          </div>
+          <button class="add-btn" onclick="addToCart('${item.id}')">Add to Cart</button>
+        </div>
+      </div>
+    `;
+}
+
+function renderGrid() {
+  const grid = document.getElementById("item-grid");
+  grid.innerHTML = "";
+
+  const categories = [...new Set(ITEMS.map(i => i.category || ""))];
+  categories.forEach(cat => {
+    if (cat) {
+      const heading = document.createElement("h2");
+      heading.className = "category-heading";
+      heading.textContent = cat;
+      grid.appendChild(heading);
+    }
+    const catGrid = document.createElement("div");
+    catGrid.className = "grid";
+    ITEMS.filter(i => (i.category || "") === cat).forEach(item => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = renderCardHTML(item);
+      catGrid.appendChild(card);
+    });
+    grid.appendChild(catGrid);
+  });
+}
+
+function stepQty(id, delta) {
+  const input = document.getElementById("qty-" + id);
+  let val = Math.max(0, (parseInt(input.value) || 0) + delta);
+  input.value = val;
+}
+
+function setQty(id, val) {
+  const input = document.getElementById("qty-" + id);
+  input.value = Math.max(0, parseInt(val) || 0);
+}
+
+function addToCart(id) {
+  const input = document.getElementById("qty-" + id);
+  const qty = Math.max(0, parseInt(input.value) || 0);
+  if (qty === 0) {
+    delete cart[id];
+  } else {
+    cart[id] = qty;
+  }
+  saveCart(cart);
+  renderCart();
+  toggleCart(true);
+}
+
+function removeFromCart(id) {
+  delete cart[id];
+  saveCart(cart);
+  const input = document.getElementById("qty-" + id);
+  if (input) input.value = 0;
+  renderCart();
+}
+
+function cartTotal() {
+  return Object.entries(cart).reduce((sum, [id, qty]) => {
+    const item = itemById(id);
+    return item ? sum + item.price * qty : sum;
+  }, 0);
+}
+
+function cartCount() {
+  return Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+}
+
+function renderCart() {
+  const container = document.getElementById("cart-items");
+  const entries = Object.entries(cart).filter(([id, qty]) => qty > 0 && itemById(id));
+
+  document.getElementById("cart-count").textContent = cartCount();
+
+  if (entries.length === 0) {
+    container.innerHTML = `<div class="cart-empty">Your cart is empty. Add an item to get started.</div>`;
+  } else {
+    container.innerHTML = entries.map(([id, qty]) => {
+      const item = itemById(id);
+      return `
+        <div class="cart-line">
+          <div>
+            <div class="line-name">${item.name}</div>
+            <div class="line-sub">${qty} × ${money(item.price)} = ${money(qty * item.price)}</div>
+          </div>
+          <button class="remove" onclick="removeFromCart('${id}')">Remove</button>
+        </div>
+      `;
+    }).join("");
+  }
+
+  const total = cartTotal();
+  document.getElementById("cart-total-amount").textContent = money(total);
+
+  const link = document.getElementById("checkout-link");
+  if (total > 0) {
+    const amount = total.toFixed(2);
+    link.href = `https://${CONFIG.subdomain}.churchcenter.com/giving/to/${CONFIG.fundSlug}?default_amount=${amount}`;
+    link.removeAttribute("disabled");
+  } else {
+    link.href = "#";
+    link.setAttribute("disabled", "true");
+  }
+}
+
+function toggleCart(open) {
+  document.getElementById("cart-panel").classList.toggle("open", open);
+  document.getElementById("overlay").classList.toggle("open", open);
+}
+
+function copySummary() {
+  const entries = Object.entries(cart).filter(([id, qty]) => qty > 0 && itemById(id));
+  const msg = document.getElementById("copy-msg");
+  if (entries.length === 0) {
+    msg.textContent = "Your cart is empty.";
+    return;
+  }
+  const lines = entries.map(([id, qty]) => {
+    const item = itemById(id);
+    return `${item.name} x${qty}`;
+  });
+  const text = `Wish list gift: ${lines.join(", ")} (Total ${money(cartTotal())})`;
+  navigator.clipboard.writeText(text).then(() => {
+    msg.textContent = "Copied! Paste it in the memo field on the giving page.";
+  }).catch(() => {
+    msg.textContent = text;
+  });
+}
+
+renderGrid();
+renderCart();
+</script>
+
+</body>
+</html>

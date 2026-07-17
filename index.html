@@ -25,6 +25,65 @@
     color: var(--text);
     padding-bottom: 90px;
   }
+  * Fun hero header, styled after trl.fyi/move: bold two-line headline +
+     photo side-by-side on a bright accent background, with a pill CTA
+     that jumps straight to the item grid. Edit the text/photo/colors in
+     the HERO block near the top of <body> below. */
+  header.hero {
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    overflow: hidden;
+  }
+  .hero-text {
+    flex: 1 1 320px;
+    padding: 52px 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .hero-eyebrow {
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    font-size: 0.82rem;
+    margin: 0 0 10px;
+  }
+  .hero-text h1 {
+    font-size: clamp(2.1rem, 6vw, 3.4rem);
+    line-height: 1.05;
+    text-transform: uppercase;
+    font-weight: 800;
+    margin: 0 0 18px;
+  }
+  .hero-text p {
+    margin: 0 0 24px;
+    max-width: 420px;
+    opacity: 0.92;
+    line-height: 1.5;
+  }
+  .hero-cta {
+    display: inline-block;
+    align-self: flex-start;
+    background: #fff;
+    color: var(--accent);
+    font-weight: 700;
+    text-decoration: none;
+    padding: 14px 30px;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+    transition: transform 0.15s ease;
+  }
+  .hero-cta:hover { transform: translateY(-2px); }
+  .hero-photo {
+    flex: 1 1 340px;
+    min-height: 280px;
+    background-size: cover;
+    background-position: center;
+  }
   header.page-header {
     background: var(--brand);
     color: #fff;

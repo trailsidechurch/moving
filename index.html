@@ -42,6 +42,9 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+      align-items: flex-end;   /* NEW — right-justifies logo, h1, p, cta */
+  text-align: right;       /* NEW — right-aligns the actual text inside them */
+
   }
   .hero-eyebrow {
     font-weight: 700;
@@ -66,7 +69,7 @@
   }
   .hero-cta {
     display: inline-block;
-    align-self: flex-start;
+    align-self: flex-end;
     background: #fff;
     color: var(--accent);
     font-weight: 700;

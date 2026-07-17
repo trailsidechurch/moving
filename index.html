@@ -315,6 +315,16 @@
     font-weight: 700;
     margin-bottom: 12px;
   }
+  .checkout-notice {
+    font-size: 0.82rem;
+    color: var(--muted);
+    background: #f9f8f6;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
   .checkout-btn {
     display: block;
     width: 100%;
@@ -401,6 +411,7 @@
       <span>Total</span>
       <span id="cart-total-amount">$0.00</span>
     </div>
+    <div class="checkout-notice">This page is not automatically updated when donations are made. Be sure to include the items you're donating towards in the "memo" on your donation.</div>
     <a href="#" target="_blank" id="checkout-link" class="checkout-btn" data-open-in-church-center-modal="true">Give This Amount Now</a>
     <div class="copy-row">
       <button onclick="copySummary()">Copy my selections (for the memo field)</button>
@@ -626,7 +637,7 @@ const ITEMS = [
     id: "turf",
     category: "Courtyard",
     name: "Turf around Outdoor Stage",
-    price: 20000,
+    price: 5000,
     photo: "https://www.synlawn.ca/wp-content/uploads/2023/04/SYNLawn-SYNTipede-343-ST343-03.jpg",
     goal: 1,
     funded: 1

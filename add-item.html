@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Wish List Item</title>
+<style>
+  :root {
+    --brand: #e27267;
+    --brand-dark: #919D9D;
+    --bg: #f7f5f0;
+    --card-bg: #ffffff;
+    --text: #22282a;
+    --muted: #6b7480;
+    --border: #e4e1d8;
+    --accent: #e27267;
+    --ok: #2e7d4f;
+    --err: #b04a4a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: var(--accent);
+    color: #fff;
+    padding: 24px 20px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 1.4rem; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.9rem; }
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 28px;
+  }
+  @media (max-width: 800px) {
+    main { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .panel h2 {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+  }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 14px 0 4px;
+  }
+  label .hint {
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+  input, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 50px; }
+  .row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .token-box {
+    margin-top: 22px;
+    padding: 14px;
+    background: #fbf3ed;
+    border: 1px solid #eecdbd;
+    border-radius: 10px;
+  }
+  .token-box summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+  .token-box p, .token-box ol {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .submit-btn {
+    margin-top: 20px;
+    width: 100%;
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .submit-btn:hover:not(:disabled) { background: #c95f52; }
+  .status {
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    display: none;
+    white-space: pre-wrap;
+  }
+  .status.ok { display: block; background: #eaf5ee; color: var(--ok); border: 1px solid #bfe2cc; }
+  .status.err { display: block; background: #fbeceb; color: var(--err); border: 1px solid #f0c6c3; }
+  .status.info { display: block; background: #eef2f6; color: #445; border: 1px solid #d7e0e8; }
+
+  /* preview card, mirrors index.html card styling */
+  .preview-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .preview-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    background: #eee;
+    display: block;
+  }
+  .preview-body { padding: 12px 14px 14px; }
+  .preview-body h3 { margin: 0 0 4px; font-size: 1rem; }
+  .preview-price { font-weight: 600; color: var(--brand-dark); margin-bottom: 6px; font-size: 0.92rem; }
+  .preview-desc { font-size: 0.82rem; color: var(--muted); margin-bottom: 6px; line-height: 1.4; }
+  .preview-progress-track { background: #eceae2; border-radius: 6px; height: 7px; overflow: hidden; margin-top: 6px; }
+  .preview-progress-fill { background: var(--accent); height: 100%; }
+  .preview-progress-label { font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
+  .panel-sticky { position: sticky; top: 20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Add a Wish List Item</h1>
+  <p>Fill out the form, review the preview, and submit — this commits the change directly to the live site.</p>
+</header>
+
+<main>
+  <div class="panel">
+    <h2>Item details</h2>
+    <form id="item-form">
+      <label>Category <span class="hint">(pick an existing one or type a new one)</span></label>
+      <input type="text" id="f-category" list="category-list" autocomplete="off" required>
+      <datalist id="category-list"></datalist>
+
+      <label>Item name</label>
+      <input type="text" id="f-name" autocomplete="off" required>
+
+      <div class="row2">
+        <div>
+          <label>Price (per unit, USD)</label>
+          <input type="number" id="f-price" min="0" step="0.01" required>
+        </div>
+        <div>
+          <label>Internal ID <span class="hint">(auto-filled, must be unique)</span></label>
+          <input type="text" id="f-id" autocomplete="off">
+        </div>
+      </div>
+
+      <label>Photo URL</label>
+      <input type="url" id="f-photo" placeholder="https://..." required>
+
+      <label>Description <span class="hint">(optional)</span></label>
+      <textarea id="f-desc"></textarea>
+
+      <div class="row2">
+        <div>
+          <label>Goal quantity <span class="hint">(optional — leave blank if open-ended)</span></label>
+          <input type="number" id="f-goal" min="1" step="1">
+        </div>
+        <div>
+          <label>Already funded <span class="hint">(optional, defaults to 0)</span></label>
+          <input type="number" id="f-funded" min="0" step="1" value="0">
+        </div>
+      </div>
+
+      <details class="token-box" id="token-details">
+        <summary>GitHub token (required to publish)</summary>
+        <p>To commit changes directly, this form needs a GitHub token with write access to <strong>trailsidechurch/moving</strong>.</p>
+        <ol>
+          <li>Go to github.com &rarr; Settings &rarr; Developer settings &rarr; Fine-grained tokens &rarr; Generate new token</li>
+          <li>Limit repository access to just <strong>trailsidechurch/moving</strong></li>
+          <li>Under Permissions, set <strong>Contents</strong> to <strong>Read and write</strong></li>
+          <li>Generate, copy the token, and paste it below</li>
+        </ol>
+        <p><strong>Keep this token private.</strong> It is only stored in this browser tab's memory — it's never saved to disk or sent anywhere except GitHub's API, and it disappears when you close or reload this page.</p>
+        <label style="margin-top:8px;">GitHub Token</label>
+        <input type="password" id="f-token" autocomplete="off" placeholder="github_pat_...">
+      </details>
+
+      <button type="submit" class="submit-btn" id="submit-btn">Publish Item to Live Site</button>
+      <div class="status" id="status"></div>
+    </form>
+  </div>
+
+  <div class="panel panel-sticky">
+    <h2>Live preview</h2>
+    <div class="preview-card">
+      <img id="p-img" src="" alt="">
+      <div class="preview-body">
+        <h3 id="p-name">Item name</h3>
+        <div class="preview-price" id="p-price">$0.00 each</div>
+        <div class="preview-desc" id="p-desc" style="display:none;"></div>
+        <div id="p-progress" style="display:none;">
+          <div class="preview-progress-track"><div class="preview-progress-fill" id="p-progress-fill" style="width:0%"></div></div>
+          <div class="preview-progress-label" id="p-progress-label"></div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:0.78rem;color:var(--muted);margin-top:10px;">
+      This is a live preview only. Nothing is published until you click "Publish Item to Live Site."
+    </p>
+  </div>
+</main>
+
+<script>
+const REPO_OWNER = "trailsidechurch";
+const REPO_NAME = "moving";
+const FILE_PATH = "index.html";
+const BRANCH = "main";
+const LIVE_URL = "https://trailsidechurch.github.io/moving/index.html";
+
+const money = n => "$" + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function slugify(str) {
+  return String(str)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60) || "item";
+}
+
+function escapeJsString(str) {
+  return String(str)
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\r?\n/g, " ");
+}
+
+// --- Load existing categories + ids for the datalist / duplicate checks ---
+let knownCategories = [];
+let knownIds = [];
+
+async function loadExisting() {
+  try {
+    const res = await fetch(LIVE_URL, { cache: "no-store" });
+    const text = await res.text();
+    knownCategories = [...new Set([...text.matchAll(/category:\s*"([^"]+)"/g)].map(m => m[1]))];
+    knownIds = [...text.matchAll(/id:\s*"([^"]+)"/g)].map(m => m[1]);
+    const dl = document.getElementById("category-list");
+    dl.innerHTML = knownCategories.map(c => `<option value="${c.replace(/"/g, "&quot;")}">`).join("");
+  } catch (e) {
+    // non-fatal — form still works, just without suggestions/duplicate pre-check
+    console.warn("Could not preload existing items:", e);
+  }
+}
+loadExisting();
+
+// --- Live preview ---
+const fName = document.getElementById("f-name");
+const fPrice = document.getElementById("f-price");
+const fPhoto = document.getElementById("f-photo");
+const fDesc = document.getElementById("f-desc");
+const fGoal = document.getElementById("f-goal");
+const fFunded = document.getElementById("f-funded");
+const fId = document.getElementById("f-id");
+
+function updatePreview() {
+  document.getElementById("p-name").textContent = fName.value || "Item name";
+  document.getElementById("p-price").textContent = (fPrice.value ? money(fPrice.value) : "$0.00") + " each";
+  document.getElementById("p-img").src = fPhoto.value || "";
+
+  const descEl = document.getElementById("p-desc");
+  if (fDesc.value.trim()) {
+    descEl.style.display = "block";
+    descEl.textContent = fDesc.value.trim();
+  } else {
+    descEl.style.display = "none";
+  }
+
+  const progWrap = document.getElementById("p-progress");
+  const goal = parseInt(fGoal.value, 10);
+  const funded = parseInt(fFunded.value, 10) || 0;
+  if (goal > 0) {
+    progWrap.style.display = "block";
+    const pct = Math.min(100, Math.round((funded / goal) * 100));
+    document.getElementById("p-progress-fill").style.width = pct + "%";
+    const remaining = Math.max(0, goal - funded);
+    document.getElementById("p-progress-label").textContent =
+      remaining === 0 ? "Fully funded — thank you!" : `${funded} of ${goal} funded (${remaining} still needed)`;
+  } else {
+    progWrap.style.display = "none";
+  }
+}
+
+fName.addEventListener("input", () => {
+  if (!fId.dataset.userEdited) {
+    fId.value = slugify(fName.value);
+  }
+  updatePreview();
+});
+fId.addEventListener("input", () => { fId.dataset.userEdited = "1"; });
+[fPrice, fPhoto, fDesc, fGoal, fFunded].forEach(el => el.addEventListener("input", updatePreview));
+updatePreview();
+
+// --- Base64 helpers (UTF-8 safe) ---
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+function base64ToUtf8(b64) {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder("utf-8").decode(bytes);
+}
+
+function setStatus(kind, msg) {
+  const el = document.getElementById("status");
+  el.className = "status " + kind;
+  el.textContent = msg;
+}
+
+document.getElementById("item-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const submitBtn = document.getElementById("submit-btn");
+
+  const category = document.getElementById("f-category").value.trim();
+  const name = fName.value.trim();
+  const price = parseFloat(fPrice.value);
+  const photo = fPhoto.value.trim();
+  const desc = fDesc.value.trim();
+  const goal = fGoal.value ? parseInt(fGoal.value, 10) : null;
+  const funded = fFunded.value ? parseInt(fFunded.value, 10) : 0;
+  const token = document.getElementById("f-token").value.trim();
+  let id = fId.value.trim() || slugify(name);
+
+  if (!category || !name || !photo || isNaN(price) || price < 0) {
+    setStatus("err", "Please fill in category, name, a valid price, and a photo URL.");
+    return;
+  }
+  if (!token) {
+    setStatus("err", "A GitHub token is required to publish. See the token box above for instructions.");
+    document.getElementById("token-details").open = true;
+    return;
+  }
+
+  submitBtn.disabled = true;
+  setStatus("info", "Fetching the live file...");
+
+  try {
+    // 1. Get current file + sha
+    const getRes = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
+      { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } }
+    );
+    if (!getRes.ok) {
+      const errBody = await getRes.text();
+      throw new Error(`Could not read the file from GitHub (${getRes.status}). ${errBody}`);
+    }
+    const getData = await getRes.json();
+    const sha = getData.sha;
+    const content = base64ToUtf8(getData.content.replace(/\n/g, ""));
+
+    // 2. Re-check id uniqueness against the freshest content
+    const existingIds = [...content.matchAll(/id:\s*"([^"]+)"/g)].map(m => m[1]);
+    if (existingIds.includes(id)) {
+      let n = 2;
+      while (existingIds.includes(`${id}-${n}`)) n++;
+      id = `${id}-${n}`;
+    }
+
+    // 3. Build the new item block, matching the file's existing style
+    const lines = [
+      `  {`,
+      `    id: "${escapeJsString(id)}",`,
+      `    category: "${escapeJsString(category)}",`,
+      `    name: "${escapeJsString(name)}",`,
+      `    price: ${price},`,
+      `    photo: "${escapeJsString(photo)}",`
+    ];
+    if (desc) lines.push(`    desc: "${escapeJsString(desc)}",`);
+    if (goal && goal > 0) lines.push(`    goal: ${goal},`);
+    lines.push(`    funded: ${funded}`);
+    lines.push(`  }`);
+    const itemBlock = lines.join("\n");
+
+    // 4. Find the ITEMS array's closing bracket (right before the
+    //    "page logic" comment) and insert the new item before it.
+    const marker = "Everything below this line is page logic";
+    const markerIdx = content.indexOf(marker);
+    if (markerIdx === -1) {
+      throw new Error("Could not find the expected marker comment in index.html — the file structure may have changed. Nothing was published.");
+    }
+    const beforeMarker = content.slice(0, markerIdx);
+    const closeIdx = beforeMarker.lastIndexOf("];");
+    if (closeIdx === -1) {
+      throw new Error("Could not find the ITEMS array's closing bracket. Nothing was published.");
+    }
+    let head = content.slice(0, closeIdx);
+    const tail = content.slice(closeIdx);
+    const trimmedHead = head.replace(/\s+$/, "");
+    if (!trimmedHead.endsWith("}")) {
+      throw new Error("The end of the ITEMS array didn't look as expected, so nothing was published (to avoid corrupting the file). Please check index.html manually.");
+    }
+    const newContent = trimmedHead + ",\n" + itemBlock + "\n" + tail;
+
+    // 5. Commit
+    setStatus("info", "Publishing...");
+    const putRes = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: `Add wish list item: ${name}`,
+          content: utf8ToBase64(newContent),
+          sha: sha,
+          branch: BRANCH
+        })
+      }
+    );
+    if (!putRes.ok) {
+      const errBody = await putRes.text();
+      throw new Error(`GitHub rejected the commit (${putRes.status}). ${errBody}`);
+    }
+
+    setStatus("ok", `Published! "${name}" (id: ${id}) was added. The live site will update in about 30–60 seconds as GitHub Pages rebuilds.`);
+    knownIds.push(id);
+    if (!knownCategories.includes(category)) {
+      knownCategories.push(category);
+      document.getElementById("category-list").innerHTML =
+        knownCategories.map(c => `<option value="${c.replace(/"/g, "&quot;")}">`).join("");
+    }
+    document.getElementById("item-form").reset();
+    fId.dataset.userEdited = "";
+    document.getElementById("f-token").value = token; // keep token for adding more items this session
+    updatePreview();
+  } catch (err) {
+    setStatus("err", "Publish failed: " + err.message);
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>

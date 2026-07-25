@@ -426,7 +426,7 @@
       <span id="cart-total-amount">$0.00</span>
     </div>
     <div class="checkout-notice">Clicking the "Donate" button will open a secure connection to Trailside's giving portal. Your donation to the Moving In Fund helps purchase the various furniture and equipment needed to move in.</div>
-    <a href="#" target="_blank" id="checkout-link" class="checkout-btn" data-open-in-church-center-modal="true">Donate</a>
+    <a href="#" target="_blank" id="checkout-link" class="checkout-btn" data-open-in-church-center-modal="true" onclick="logCartToSheet()">Donate</a>
     <div class="copy-row">
       <button onclick="copySummary()">Copy my selections (for the memo field)</button>
       <div class="copy-msg" id="copy-msg"></div>
@@ -449,7 +449,13 @@ const CONFIG = {
   // The URL slug of the single shared fund donations should go to.
   // Find/set this under Giving > Funds in Planning Center.
   // e.g. if your fund link is .../giving/to/wish-list, use "wish-list"
-  fundSlug: "moving-in-fund"
+  fundSlug: "moving-in-fund",
+
+  // Web app URL from the Google Apps Script cart logger (Extensions > Apps
+  // Script in a Google Sheet, deployed as a Web App). Every "Donate" click
+  // sends the cart contents here so you have a record outside the donor's
+  // own browser. Leave blank to disable logging.
+  cartLogWebhookUrl: "https://script.google.com/macros/s/AKfycbzrtUuYgQOOC7I3xga9qXkI33TGYVI_mUKYwsHnkqjn8HpI2e8g83HJvZcZNmU4xfy7/exec"
 };
 
 /* ============================================================
@@ -1062,6 +1068,22 @@ function copySummary() {
   }).catch(() => {
     msg.textContent = text;
   });
+}
+
+function logCartToSheet() {
+  if (!CONFIG.cartLogWebhookUrl) return;
+  const entries = Object.entries(cart).filter(([id, qty]) => qty > 0 && itemById(id));
+  if (entries.length === 0) return;
+  const itemsStr = entries.map(([id, qty]) => {
+    const item = itemById(id);
+    return `${qty}x ${item.name}`;
+  }).join(", ");
+  const payload = { items: itemsStr, total: cartTotal().toFixed(2) };
+  fetch(CONFIG.cartLogWebhookUrl, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  }).catch(() => {});
 }
 
 renderGrid();

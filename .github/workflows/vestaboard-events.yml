@@ -1,0 +1,25 @@
+name: Push Planning Center events to Vestaboard
+
+on:
+  schedule:
+    # Runs daily at 12:00 UTC. Adjust to your preferred time/timezone.
+    - cron: '0 12 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  push-events:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Push events to Vestaboard
+        working-directory: integrations/pco-vestaboard
+        env:
+          PCO_APP_ID: ${{ secrets.PCO_APP_ID }}
+          PCO_SECRET: ${{ secrets.PCO_SECRET }}
+          VESTABOARD_RW_KEY: ${{ secrets.VESTABOARD_RW_KEY }}
+        run: node index.js

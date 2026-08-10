@@ -1,0 +1,14 @@
+{
+  "name": "pco-vestaboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pushes the next upcoming Planning Center events to a Vestaboard.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

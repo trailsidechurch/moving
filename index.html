@@ -501,7 +501,15 @@ const ITEMS = [
     goal: 1,
     funded: 1
   },
- 
+  {
+    id: "custom-donation",
+    category: "Featured Items",
+    name: "Name Your Own Donation",
+    price: 1,
+    priceLabel: "Give any amount",
+    photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f7f5f0'/%3E%3Cg transform='translate(200,150)'%3E%3Cpath d='M0,55 C-70,10 -120,-30 -120,-75 C-120,-105 -95,-130 -65,-130 C-35,-130 -10,-110 0,-80 C10,-110 35,-130 65,-130 C95,-130 120,-105 120,-75 C120,-30 70,10 0,55 Z' fill='%23e27267'/%3E%3C/g%3E%3C/svg%3E",
+    desc: "Don't see something you'd like to sponsor? Enter any dollar amount below and add it to your cart."
+  },
 
 
   // --- Trailside Kids ---
@@ -927,7 +935,7 @@ function renderCardHTML(item) {
       <img src="${item.photo}" alt="${item.name}">
       <div class="card-body">
         <h3>${item.name}</h3>
-        <div class="price">${money(item.price)} each</div>
+        <div class="price">${item.priceLabel || (money(item.price) + " each")}</div>
         ${item.desc ? `<div class="desc">${item.desc}</div>` : ""}
         ${progressHTML}
         <div class="qty-row">

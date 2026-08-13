@@ -155,6 +155,14 @@
     margin: 0 0 4px;
     font-size: 1.05rem;
   }
+  .category-badge {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--brand-dark);
+    margin-bottom: 4px;
+  }
   .card .price {
     font-weight: 600;
     color: var(--brand-dark);
@@ -922,6 +930,10 @@ function itemById(id) {
   return ITEMS.find(i => i.id === id);
 }
 
+function isFulfilled(item) {
+  return !!(item.goal && item.funded >= item.goal);
+}
+
 function renderCardHTML(item) {
   let progressHTML = "";
   if (item.goal) {
@@ -943,6 +955,7 @@ function renderCardHTML(item) {
   return `
       <img src="${item.photo}" alt="${item.name}">
       <div class="card-body">
+        ${item.category ? `<div class="category-badge">${item.category}</div>` : ""}
         <h3>${item.name}</h3>
         <div class="price">${item.priceLabel || (money(item.price) + " each")}</div>
         ${item.desc ? `<div class="desc">${item.desc}</div>` : ""}
@@ -963,28 +976,33 @@ function renderCardHTML(item) {
     `;
 }
 
+function renderSection(grid, title, items) {
+  if (items.length === 0) return;
+  const heading = document.createElement("h2");
+  heading.className = "category-heading";
+  heading.textContent = title;
+  grid.appendChild(heading);
+
+  const sectionGrid = document.createElement("div");
+  sectionGrid.className = "grid";
+  items.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = renderCardHTML(item);
+    sectionGrid.appendChild(card);
+  });
+  grid.appendChild(sectionGrid);
+}
+
 function renderGrid() {
   const grid = document.getElementById("item-grid");
   grid.innerHTML = "";
 
-  const categories = [...new Set(ITEMS.map(i => i.category || ""))];
-  categories.forEach(cat => {
-    if (cat) {
-      const heading = document.createElement("h2");
-      heading.className = "category-heading";
-      heading.textContent = cat;
-      grid.appendChild(heading);
-    }
-    const catGrid = document.createElement("div");
-    catGrid.className = "grid";
-    ITEMS.filter(i => (i.category || "") === cat).forEach(item => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = renderCardHTML(item);
-      catGrid.appendChild(card);
-    });
-    grid.appendChild(catGrid);
-  });
+  const stillNeeded = ITEMS.filter(i => !isFulfilled(i));
+  const fullyFunded = ITEMS.filter(i => isFulfilled(i));
+
+  renderSection(grid, "Still Needed", stillNeeded);
+  renderSection(grid, "Fully Funded — Thank You! 🎉", fullyFunded);
 }
 
 function stepQty(id, delta) {

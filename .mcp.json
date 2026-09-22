@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "planning-center": {
+      "type": "http",
+      "url": "https://mcp.planningcenteronline.com/mcp"
+    }
+  }
+}
